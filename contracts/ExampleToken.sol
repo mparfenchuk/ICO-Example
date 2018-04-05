@@ -3,27 +3,62 @@ pragma solidity ^0.4.21;
 import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
 import "zeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
+import "zeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
+import "zeppelin-solidity/contracts/ownership/Whitelist.sol";
 
-contract ExampleToken is MintableToken, PausableToken, BurnableToken {
+contract ExampleToken is Whitelist, CanReclaimToken, BurnableToken, PausableToken, MintableToken {
+    
     string public name = "EXAMPLE COIN";
     string public symbol = "EEC";
     uint8 public decimals = 18;
 
-    /*event ClaimedTokens(address indexed _token, address indexed _controller, uint _amount);
-    
-    /// @notice This method can be used by the controller to extract mistakenly
-    ///  sent tokens to this contract.
-    /// @param _token The address of the token contract that you want to recover
-    ///  set to 0 in case you want to extract ether.
-    function claimTokens(address _token) public onlyOwner {
-        if (_token == 0x0) {
-            owner.transfer(this.balance);
-            return;
-        }
+  /**
+   * @dev Function to mint tokens
+   * @param _to The address that will receive the minted tokens.
+   * @param _amount The amount of tokens to mint.
+   * @return A boolean that indicates if the operation was successful.
+   */
 
-        Token token = Token(_token);
-        uint balance = token.balanceOf(this);
-        token.transfer(owner, balance);
-        ClaimedTokens(_token, owner, balance);
-    }*/
+    function mint(address _to, uint256 _amount) onlyWhitelisted canMint public returns (bool) {
+        totalSupply_ = totalSupply_.add(_amount);
+        balances[_to] = balances[_to].add(_amount);
+        Mint(_to, _amount);
+        Transfer(address(0), _to, _amount);
+        return true;
+    }
+
+  /**
+   * @dev Function to stop minting new tokens.
+   * @return True if the operation was successful.
+   */
+    function finishMinting() onlyWhitelisted canMint public returns (bool) {
+        mintingFinished = true;
+        MintFinished();
+        return true;
+    }
+
+  /**
+   * @dev called by the owner to pause, triggers stopped state
+   */
+    function pause() onlyWhitelisted whenNotPaused public {
+        paused = true;
+        Pause();
+    }
+
+  /**
+   * @dev called by the owner to unpause, returns to normal state
+   */
+    function unpause() onlyWhitelisted whenPaused public {
+        paused = false;
+        Unpause();
+    }
+
+  /**
+   * @dev Reclaim all ERC20Basic compatible tokens
+   * @param token ERC20Basic The address of the token contract
+   */
+    function reclaimToken(ERC20Basic token) external onlyWhitelisted {
+        uint256 balance = token.balanceOf(this);
+        token.safeTransfer(owner, balance);
+    }
 }
