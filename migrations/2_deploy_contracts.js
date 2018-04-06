@@ -10,7 +10,7 @@ module.exports = function(deployer, network, accounts) {
   const preSaleRate = new web3.BigNumber(1000); // 0.001 ETH per 1 token
   const saleRate = new web3.BigNumber(100); // 0.01 ETH per 1 token
   const finalRate = new web3.BigNumber(10); // 0.1 ETH per 1 token
-  const minPurchase = web3.toWei('0.001', 'ether'); // min purchase 0.001 ETH
+  const minPurchase = web3.toWei('0.001', 'ether'); // min purchase is 0.001 ETH
   const cap = web3.toWei('100000', 'ether'); // cap is 100 thousand ETH
   const goal = web3.toWei('10000', 'ether'); // goal is 10 thousand ETH
   const wallet = accounts[0];
@@ -35,6 +35,11 @@ module.exports = function(deployer, network, accounts) {
                 wallet,
                 ExampleToken.address
             );
+        })
+        .then (() => {
+            return ExampleToken.deployed();
+        }).then ((instance) => {
+            return instance.addAddressesToWhitelist([wallet, ExampleCrowdsale.address]);
         });
 };
 

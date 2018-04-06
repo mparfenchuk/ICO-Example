@@ -6,8 +6,8 @@ import "zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.s
 
 /**
  * @title ExampleCrowdsale
+ * @dev Minted refundable crowdsale with min and max cap, min purchase, pre-sale and sale time and rate
  */
-
 contract ExampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
     using SafeMath for uint256;
 
@@ -60,6 +60,9 @@ contract ExampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsa
         saleTime = _saleTime;  
     }
 
+  /**
+   * @dev Income value should be greater than min purchase
+   */
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
         super._preValidatePurchase(_beneficiary, _weiAmount);
         require(_weiAmount >= minPurchase);

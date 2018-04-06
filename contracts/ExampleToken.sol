@@ -6,6 +6,10 @@ import "zeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
 import "zeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
 import "zeppelin-solidity/contracts/ownership/Whitelist.sol";
 
+/**
+ * @title ExampleToken
+ * @dev Burnable pausable mintable token with reclaim function and whtelisted owners
+ */
 contract ExampleToken is Whitelist, CanReclaimToken, BurnableToken, PausableToken, MintableToken {
     
     string public name = "EXAMPLE COIN";
@@ -13,12 +17,18 @@ contract ExampleToken is Whitelist, CanReclaimToken, BurnableToken, PausableToke
     uint8 public decimals = 18;
 
   /**
+   * @dev Burn only when token is not paused
+   */
+    function burn(uint256 _value) whenNotPaused public {
+        super.burn(_value);
+    }
+
+  /**
    * @dev Function to mint tokens
    * @param _to The address that will receive the minted tokens.
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-
     function mint(address _to, uint256 _amount) onlyWhitelisted canMint public returns (bool) {
         totalSupply_ = totalSupply_.add(_amount);
         balances[_to] = balances[_to].add(_amount);
