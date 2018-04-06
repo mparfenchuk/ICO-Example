@@ -63,7 +63,7 @@ contract ExampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsa
     ...
 }
 ```
-Also you should look into `2_deploy_contracts.js` file. There is defined all needed parameters for deploying.
+Also you should look into `./migrations/2_deploy_contracts.js` file. There is defined all needed parameters for deploying.
 ```js
     const openingTime = web3.eth.getBlock('latest').timestamp + 5; // five seconds in the future
     const preSaleTime = openingTime + 86400 * 7; // 7 days  |
